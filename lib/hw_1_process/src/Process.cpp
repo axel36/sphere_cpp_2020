@@ -25,7 +25,6 @@ Process::Process(const std::string &path) {
     ::close(parent_to_child_pipe[0]);
 
     execlp(path.data(), path.data(), nullptr);
-    proc_code_ = -1;
     return;
   }
 

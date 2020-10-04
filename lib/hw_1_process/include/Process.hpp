@@ -15,7 +15,6 @@ public:
   void closeStdin();
   void close();
 
-  inline int getCode() const { return proc_code_; }
   inline bool isChannelOpen() const { return channel_open_; }
   inline bool isProcessRunning() const { return process_running_; }
 
@@ -23,7 +22,6 @@ private:
   int read_from_child_fd = -1;
   int write_to_child_fd = -1;
   pid_t fork_pid_ = -1;
-  int proc_code_ = 0;
   bool channel_open_ = true;
   bool process_running_ = true;
 };
