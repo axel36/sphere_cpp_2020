@@ -11,8 +11,11 @@ Process::Process(const std::string &path) {
   int child_to_parent_pipe[2];
 
   if (pipe(parent_to_child_pipe) < 0) {
+    throw std::runtime_error("can't create pipe");
   }
-  pipe(child_to_parent_pipe);
+  if(pipe(child_to_parent_pipe) < 0) {
+    throw std::runtime_error("can't create pipe");
+  }
 
   fork_pid_ = fork();
   if (fork_pid_ == 0) {
