@@ -13,7 +13,7 @@ Process::Process(const std::string &path) {
   if (pipe(parent_to_child_pipe) < 0) {
     throw std::runtime_error("can't create pipe");
   }
-  if(pipe(child_to_parent_pipe) < 0) {
+  if (pipe(child_to_parent_pipe) < 0) {
     throw std::runtime_error("can't create pipe");
   }
 
@@ -53,11 +53,8 @@ void Process::readExact(void *data, size_t len) {
   int rest = len;
   int position = 0;
   int bytes_read = -1;
-  char buffer[len];
-
-  while ((bytes_read = read(buffer + position, rest)) > 0) {
+  while ((bytes_read = read(static_cast<char *>(data) + position, rest)) > 0) {
     if (bytes_read >= rest) {
-      std::memmove(data, buffer, len);
       return;
     }
     rest -= bytes_read;
@@ -79,8 +76,8 @@ void Process::writeExact(const void *data, size_t len) {
   int rest = len;
   int position = 0;
   int bytes_write = -1;
-  while ((bytes_write = write(reinterpret_cast<const char *>(data) + position,
-                              rest)) > 0) {
+  while ((bytes_write =
+              write(static_cast<const char *>(data) + position, rest)) > 0) {
     if (bytes_write >= rest) {
       return;
     }
