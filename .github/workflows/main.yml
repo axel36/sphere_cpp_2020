@@ -21,6 +21,12 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+        
+      - name: Run a one-line script
+        run: mkdir build
+        
+      - name: Run a one-line script
+        run: cd build
 
       - name: Build c++ project
       # You may pin to the exact commit or the version.
@@ -37,3 +43,6 @@ jobs:
 #           unit_test_build: # optional, default is 
           # For multi-configuration tools, choose configuration <Release or Debug>
 #           config: # optional, default is Release
+      - name: Run a one-line script
+        run: rm -rf ../build
+
