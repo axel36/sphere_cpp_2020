@@ -37,4 +37,3 @@ jobs:
 #           unit_test_build: # optional, default is 
           # For multi-configuration tools, choose configuration <Release or Debug>
 #           config: # optional, default is Release
-      - name: Run a one-line script
