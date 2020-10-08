@@ -6,7 +6,6 @@ int main() {
   try {
     proc::Process proc{"./write.sh"};
 
-    cout <<
     proc.writeExact("very long string \n\0", 19);
     proc.writeExact("another long string2 \n\0", 23);
 
