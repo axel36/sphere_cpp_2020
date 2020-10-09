@@ -18,6 +18,9 @@ Process::Process(const std::string &path) {
   }
 
   fork_pid_ = fork();
+  if (fork_pid_ < 0){
+    throw std::runtime_error(std::string(strerror(errno)));
+  }
   if (fork_pid_ == 0) {
     dup2(child_to_parent_pipe[1], STDOUT_FILENO);
     ::close(child_to_parent_pipe[1]);
@@ -35,47 +38,67 @@ Process::Process(const std::string &path) {
   ::close(parent_to_child_pipe[0]);
   ::close(child_to_parent_pipe[1]);
 
-  read_from_child_fd = child_to_parent_pipe[0];
-  write_to_child_fd = parent_to_child_pipe[1];
+  read_from_child_fd_ = child_to_parent_pipe[0];
+  write_to_child_fd_ = parent_to_child_pipe[1];
 }
 
 Process::~Process() {
-  ::close(read_from_child_fd);
   close();
 }
 
 size_t Process::read(void *data, size_t len) {
-  return ::read(read_from_child_fd, data, len);
+  if(read_from_child_fd_ <= 0){
+    throw std::runtime_error("can't read message: channel was closed");
+  }
+  long int bytes_read = ::read(read_from_child_fd_, data, len);
+  if (bytes_read == 0) {
+    read_from_child_fd_ = -1;
+    throw std::runtime_error("channel was closed while reading");
+  }
+  if (bytes_read < 0) {
+    throw std::runtime_error(std::string(strerror(errno)));
+  }
+  return static_cast<size_t>(bytes_read);
 }
 
 void Process::readExact(void *data, size_t len) {
-
-  int rest = len;
-  int position = 0;
-  int bytes_read = -1;
-  while ((bytes_read = read(static_cast<char *>(data) + position, rest)) > 0) {
+  size_t rest = len;
+  size_t position = 0;
+  size_t bytes_read = 0;
+  while ((bytes_read =
+              read(static_cast<char *>(data) + position, rest)) > 0) {
     if (bytes_read >= rest) {
       return;
     }
     rest -= bytes_read;
     position += bytes_read;
   }
-  if (bytes_read == 0) {
-    throw std::runtime_error(
-        "can't read whole message: channel was closed while reading");
-  } else {
+}
+
+size_t Process::write(const void *data, size_t len) {
+  if (!isChannelOpen()) {
+    throw std::runtime_error("can't write message: channel was closed");
+  }
+  long int bytes_write = ::write(write_to_child_fd_, data, len);
+
+  if (bytes_write == 0) {
+    write_to_child_fd_ = -1;
+    throw std::runtime_error("channel was closed while writing");
+  }
+  if(bytes_write < 0){
     throw std::runtime_error(std::string(strerror(errno)));
   }
+
+  return static_cast<size_t>(bytes_write);
 }
 
 void Process::writeExact(const void *data, size_t len) {
   if (!isChannelOpen()) {
     throw std::runtime_error("can't write message: channel was closed");
   }
-
-  int rest = len;
-  int position = 0;
-  int bytes_write = -1;
+  size_t rest = len;
+  size_t position = 0;
+  size_t bytes_write = 0;
   while ((bytes_write =
               write(static_cast<const char *>(data) + position, rest)) > 0) {
     if (bytes_write >= rest) {
@@ -84,26 +107,12 @@ void Process::writeExact(const void *data, size_t len) {
     rest -= bytes_write;
     position += bytes_write;
   }
-  if (bytes_write == 0) {
-    channel_open_ = false;
-    throw std::runtime_error(
-        "can't write whole message: channel was closed while writing");
-  } else {
-    throw std::runtime_error(std::string(strerror(errno)));
-  }
-}
-
-size_t Process::write(const void *data, size_t len) {
-  if (!isChannelOpen()) {
-    throw std::runtime_error("can't write message: channel was closed");
-  }
-  return ::write(write_to_child_fd, data, len);
 }
 
 void Process::closeStdin() {
   if (isChannelOpen()) {
-    ::close(write_to_child_fd);
-    channel_open_ = false;
+    ::close(write_to_child_fd_);
+    write_to_child_fd_ = -1;
   } else {
     std::cout << "error can't close stdin twice" << std::endl;
   }
@@ -116,12 +125,22 @@ void Process::close() {
       closeStdin();
     }
 
+    ::close(read_from_child_fd_);
+    read_from_child_fd_ = -1;
+
     kill(fork_pid_, SIGINT);
     waitpid(fork_pid_, nullptr, 0);
-
-    process_running_ = false;
+    fork_pid_ = -1;
   } else {
-    std::cout << "error can't close Process twice" << std::endl;
+    std::cout << "error can't end Process twice" << std::endl;
   }
+}
+
+inline bool Process::isChannelOpen() const{
+  return write_to_child_fd_ > 0;
+}
+
+inline bool Process::isProcessRunning() const {
+  return fork_pid_ > 0;
 }
 } // namespace proc

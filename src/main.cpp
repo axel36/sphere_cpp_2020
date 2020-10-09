@@ -1,24 +1,27 @@
 #include <Process.hpp>
+#include <cassert>
 #include <iostream>
 
 int main() {
 
-  try {
-    proc::Process proc{"./write.sh"};
+  proc::Process proc{"./write.sh"};
 
-    proc.writeExact("very long string \n\0", 19);
-    proc.writeExact("another long string2 \n\0", 23);
+  std::string input_string;
+  std::string element = "1234567890";
+  int len = 1000;
 
-    std::string out(100, '\0');
-    proc.readExact(out.data(), 25);
-    std::cout << "1: " << out << std::endl;
-
-    out = std::string(100, '\0');
-    proc.readExact(out.data(), 10);
-    std::cout << "2: " << out << std::endl;
-
-  } catch (const std::runtime_error &e) {
-    std::cout << "err: " << e.what() << std::endl;
+  for (int i = 0; i < len; i++) {
+    input_string += element;
   }
+  std::string ended_string = input_string + "\n\0";
+
+  proc.writeExact(ended_string.data(), element.size() * len + 2);
+
+  std::string out(element.size() * len + 2, '\0');
+  proc.readExact(out.data(), 10002);
+
+  input_string += "_$";
+  assert(input_string == out);
+
   return 0;
 }
