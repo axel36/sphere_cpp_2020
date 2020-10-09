@@ -43,7 +43,11 @@ Process::Process(const std::string &path) {
   write_to_child_fd_ = parent_to_child_pipe[1];
 }
 
-Process::~Process() { close(); }
+Process::~Process() {
+  if (isProcessRunning()) {
+    close();
+  }
+}
 
 size_t Process::read(void *data, size_t len) {
   if (read_from_child_fd_ <= 0) {
@@ -130,11 +134,7 @@ void Process::close() {
     waitpid(fork_pid_, nullptr, 0);
     fork_pid_ = -1;
   } else {
-    std::cout << "error can't end Process twice" << std::endl;
+    std::cout << "error: can't end Process twice" << std::endl;
   }
 }
-
-inline bool Process::isChannelOpen() const { return write_to_child_fd_ > 0; }
-
-inline bool Process::isProcessRunning() const { return fork_pid_ > 0; }
 } // namespace proc
