@@ -31,8 +31,9 @@ Process::Process(const std::string &path) {
     ::close(parent_to_child_pipe[0]);
 
     execlp(path.data(), path.data(), nullptr);
-    raise(SIGINT);
-    return;
+    std::cerr << "can't run command execlp with path " << path.data()
+              << std::endl;
+    exit(1);
   }
 
   ::close(parent_to_child_pipe[0]);
