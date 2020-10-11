@@ -1,6 +1,6 @@
 #include <cassert>
-#include <stdexcept>
 #include <iostream>
+#include <stdexcept>
 
 #include "process.hpp"
 
@@ -11,7 +11,7 @@ int main() {
 
   std::string input_string;
   std::string element = "1234567890";
-  int len = 1000;
+  int len = 1000000;
 
   for (int i = 0; i < len; i++) {
     input_string += element;
@@ -21,7 +21,7 @@ int main() {
   proc.writeExact(ended_string.data(), element.size() * len + 2);
 
   std::string out(element.size() * len + 2, '\0');
-  proc.readExact(out.data(), 10002);
+  proc.readExact(out.data(), element.size() * len + 2);
 
   input_string += "_$";
   assert(input_string == out);

@@ -9,5 +9,5 @@ target_include_directories(hw_1_process PUBLIC include)
 add_library(hw_1_descriptor STATIC src/descriptor.cpp include/descriptor.hpp)
 target_include_directories(hw_1_descriptor PUBLIC include)
 
-add_executable(test_hw_1_process tests/hw1_test.cpp src/process.cpp)
+add_executable(test_hw_1_process tests/hw1_test.cpp src/process.cpp src/descriptor.cpp)
 target_include_directories(test_hw_1_process PRIVATE include)

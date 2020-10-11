@@ -1,24 +1,23 @@
-#include <zconf.h>
-#include <iostream>
 #include "descriptor.hpp"
+#include <iostream>
+#include <zconf.h>
 
 namespace desc {
 
-Descriptor::Descriptor(int fd): fd_(fd) {
-  if (!isValid()){
+Descriptor::Descriptor(int fd) : fd_(fd) {
+  if (!isValid()) {
     throw DescriptorError("invald file descriptor");
   }
 }
 
-Descriptor::Descriptor(Descriptor &&other) noexcept: fd_(other.fd_) {
+Descriptor::Descriptor(Descriptor &&other) noexcept : fd_(other.fd_) {
   other.fd_ = -1;
 }
 
 Descriptor &Descriptor::operator=(Descriptor &&other) noexcept {
 
-  if (this != &other)
-  {
-    if(isValid()){
+  if (this != &other) {
+    if (isValid()) {
       ::close(fd_);
     }
 
@@ -30,26 +29,28 @@ Descriptor &Descriptor::operator=(Descriptor &&other) noexcept {
 }
 
 Descriptor::~Descriptor() noexcept {
-  try{
-    close();
-  }catch (const DescriptorError&){}
-  catch(const std::exception& exc){
+  try {
+    closeThrow();
+  } catch (const DescriptorError &) {
+  } catch (const std::exception &exc) {
     std::cerr << exc.what() << std::endl;
   }
 }
 
-void Descriptor::close() {
-  if(isValid()){
+void Descriptor::closeThrow() {
+  if (isValid()) {
     ::close(fd_);
     fd_ = -1;
   } else {
     throw DescriptorError("can't close invalid descriptor");
   }
-
 }
 
-bool Descriptor::isValid() const{
-  return fd_ > 0;
+void Descriptor::close() {
+  ::close(fd_);
+  fd_ = -1;
 }
 
-}
+bool Descriptor::isValid() const { return fd_ > 0; }
+int Descriptor::operator*() const { return fd_; }
+} // namespace desc

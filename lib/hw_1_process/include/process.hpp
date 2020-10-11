@@ -1,7 +1,13 @@
 #pragma once
+#include "descriptor.hpp"
 #include <string>
 
 namespace proc {
+class ProcessError : public std::runtime_error {
+public:
+  explicit ProcessError(const std::string &msg) : std::runtime_error(msg) {}
+};
+
 class Process {
 public:
   explicit Process(const std::string &path);
@@ -20,8 +26,8 @@ public:
   [[nodiscard]] bool isProcessRunning() const;
 
 private:
-  int read_from_child_fd_ = -1;
-  int write_to_child_fd_ = -1;
+  desc::Descriptor read_from_child_;
+  desc::Descriptor write_to_child_;
   pid_t fork_pid_ = -1;
 };
 } // namespace proc

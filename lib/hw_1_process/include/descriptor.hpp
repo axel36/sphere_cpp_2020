@@ -2,28 +2,29 @@
 
 #include <stdexcept>
 
-namespace desc{
+namespace desc {
 
-class DescriptorError : public std::runtime_error{
+class DescriptorError : public std::runtime_error {
 public:
-  explicit DescriptorError(const std::string& msg):std::runtime_error(msg){}
+  explicit DescriptorError(const std::string &msg) : std::runtime_error(msg) {}
 };
 
-class Descriptor{
+class Descriptor {
 public:
   Descriptor() = default;
   explicit Descriptor(int fd);
-  Descriptor(const Descriptor& other) = delete;
-  Descriptor(Descriptor&& other) noexcept ;
-  Descriptor& operator=(const Descriptor&) = delete;
-  Descriptor& operator=(Descriptor&& other) noexcept ;
+  Descriptor(const Descriptor &other) = delete;
+  Descriptor(Descriptor &&other) noexcept;
+  Descriptor &operator=(const Descriptor &) = delete;
+  Descriptor &operator=(Descriptor &&other) noexcept;
   ~Descriptor() noexcept;
 
+  void closeThrow();
   void close();
-  bool isValid() const;
+  [[nodiscard]] bool isValid() const;
+  int operator*() const;
 
 private:
   int fd_ = -1;
-
 };
-}
+} // namespace desc
