@@ -15,10 +15,9 @@ public:
   void closeStdin();
   void close();
 
-  [[nodiscard]] inline bool isChannelOpen() const {
-    return write_to_child_fd_ > 0;
-  }
-  [[nodiscard]] inline bool isProcessRunning() const { return fork_pid_ > 0; }
+  [[nodiscard]] bool isWriteChannelOpen() const;
+  [[nodiscard]] bool isReadChannelOpen() const;
+  [[nodiscard]] bool isProcessRunning() const;
 
 private:
   int read_from_child_fd_ = -1;

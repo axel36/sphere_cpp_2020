@@ -1,8 +1,9 @@
-#include "Process.hpp"
 #include <cstring>
 #include <iostream>
 #include <wait.h>
 #include <zconf.h>
+
+#include "process.hpp"
 
 namespace proc {
 Process::Process(const std::string &path) {
@@ -53,13 +54,14 @@ size_t Process::read(void *data, size_t len) {
   if (read_from_child_fd_ <= 0) {
     throw std::runtime_error("can't read message: channel was closed");
   }
-  long int bytes_read = ::read(read_from_child_fd_, data, len);
-  if (bytes_read == 0) {
-    read_from_child_fd_ = -1;
-    throw std::runtime_error("channel was closed while reading");
-  }
+  ssize_t bytes_read = ::read(read_from_child_fd_, data, len);
+
   if (bytes_read < 0) {
     throw std::runtime_error(std::string(strerror(errno)));
+  }
+
+  if (bytes_read == 0) {
+    read_from_child_fd_ = -1;
   }
   return static_cast<size_t>(bytes_read);
 }
@@ -75,30 +77,28 @@ void Process::readExact(void *data, size_t len) {
     rest -= bytes_read;
     position += bytes_read;
   }
+  if (bytes_read == 0) {
+    throw std::runtime_error("channel was closed while reading");
+  }
 }
 
 size_t Process::write(const void *data, size_t len) {
-  if (!isChannelOpen()) {
+  if (!isWriteChannelOpen()) {
     throw std::runtime_error("can't write message: channel was closed");
   }
-  long int bytes_write = ::write(write_to_child_fd_, data, len);
+  ssize_t bytes_write = ::write(write_to_child_fd_, data, len);
 
-  if (bytes_write == 0) {
-    write_to_child_fd_ = -1;
-    throw std::runtime_error("channel was closed while writing");
-  }
   if (bytes_write < 0) {
     throw std::runtime_error(std::string(strerror(errno)));
+  }
+  if (bytes_write == 0) {
+    write_to_child_fd_ = -1;
   }
 
   return static_cast<size_t>(bytes_write);
 }
 
-void Process::writeExact(const void *data, size_t len) {
-  if (!isChannelOpen()) {
-    throw std::runtime_error("can't write message: channel was closed");
-  }
-  size_t rest = len;
+void Process::writeExact(const void *data, size_t rest) {
   size_t position = 0;
   size_t bytes_write = 0;
   while ((bytes_write =
@@ -109,10 +109,13 @@ void Process::writeExact(const void *data, size_t len) {
     rest -= bytes_write;
     position += bytes_write;
   }
+  if (bytes_write == 0) {
+    throw std::runtime_error("channel was closed while writing");
+  }
 }
 
 void Process::closeStdin() {
-  if (isChannelOpen()) {
+  if (isWriteChannelOpen()) {
     ::close(write_to_child_fd_);
     write_to_child_fd_ = -1;
   } else {
@@ -123,12 +126,13 @@ void Process::closeStdin() {
 void Process::close() {
   if (isProcessRunning()) {
 
-    if (isChannelOpen()) {
+    if (isWriteChannelOpen()) {
       closeStdin();
     }
-
-    ::close(read_from_child_fd_);
-    read_from_child_fd_ = -1;
+    if( isReadChannelOpen()) {
+      ::close(read_from_child_fd_);
+      read_from_child_fd_ = -1;
+    }
 
     kill(fork_pid_, SIGINT);
     waitpid(fork_pid_, nullptr, 0);
@@ -137,4 +141,15 @@ void Process::close() {
     std::cout << "error: can't end Process twice" << std::endl;
   }
 }
+
+bool Process::isWriteChannelOpen() const {
+  return write_to_child_fd_ > 0;
+}
+
+bool Process::isReadChannelOpen() const {
+  return read_from_child_fd_ > 0;
+}
+
+bool Process::isProcessRunning() const{ return fork_pid_ > 0; }
+
 } // namespace proc
