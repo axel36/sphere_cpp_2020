@@ -16,8 +16,8 @@ public:
   virtual void Info(const std::string &msg);
   virtual void Warn(const std::string &msg);
   virtual void Error(const std::string &msg);
-  void SetLevel(const Level &level) { level_ = level; }
-  Level GetCurrentLevel() { return level_; }
+  void SetLevel(const Level &level);
+  Level GetCurrentLevel();
   virtual void Flush() {}
 
 private:

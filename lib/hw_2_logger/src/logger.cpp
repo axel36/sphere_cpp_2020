@@ -19,12 +19,14 @@ std::string LevelToString(const Level &level) {
   throw std::runtime_error("Unknown log level");
 }
 
+void BaseLogger::SetLevel(const Level &level) { level_ = level; }
+Level BaseLogger::GetCurrentLevel() { return level_; }
+
 void BaseLogger::Log(const Level &level, const std::string &msg) {
   if (GetCurrentLevel() <= level) {
     PrintLog(level, msg);
   }
 }
-
 void BaseLogger::Debug(const std::string &msg) { Log(Level::DEBUG, msg); }
 void BaseLogger::Info(const std::string &msg) { Log(Level::INFO, msg); }
 void BaseLogger::Warn(const std::string &msg) { Log(Level::WARN, msg); }
