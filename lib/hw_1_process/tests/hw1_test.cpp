@@ -34,21 +34,22 @@ int main() {
   try {
     proc.write(element.data(), 10);
     assert(false);
-  } catch (const std::runtime_error &exc) {
+  } catch (const proc::ProcessError &exc) {
     const std::string expected_what = "can't write message: channel was closed";
     assert(exc.what() == expected_what);
     std::cout << "write to closed channel test:    OK" << std::endl;
   }
 
-  assert(proc.isProcessRunning() == true);
-  proc.close();
-  assert(proc.isProcessRunning() == false);
+  proc::Process proc2{"./test_1hw.sh"};
+  assert(proc2.isProcessRunning() == true);
+  proc2.close();
+  assert(proc2.isProcessRunning() == false);
 
   try {
     std::string test(10, '\0');
-    proc.write(test.data(), 10);
+    proc2.write(test.data(), 10);
     assert(false);
-  } catch (const std::runtime_error &exc) {
+  } catch (const proc::ProcessError &exc) {
     const std::string expected_what = "can't write message: channel was closed";
     assert(exc.what() == expected_what);
     std::cout << "close test:                      OK" << std::endl;

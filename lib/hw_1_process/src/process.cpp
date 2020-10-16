@@ -12,13 +12,13 @@ Process::Process(const std::string &path) {
   int child_to_parent_pipe[2];
 
   if (pipe(parent_to_child_pipe) < 0) {
-    throw std::runtime_error("can't create pipe");
+    throw ProcessError("can't create pipe");
   }
   desc::Descriptor to_child_write{parent_to_child_pipe[1]};
   desc::Descriptor to_child_read{parent_to_child_pipe[0]};
 
   if (pipe(child_to_parent_pipe) < 0) {
-    throw std::runtime_error("can't create pipe");
+    throw ProcessError("can't create pipe");
   }
   desc::Descriptor to_parent_write{child_to_parent_pipe[1]};
   desc::Descriptor to_parent_read{child_to_parent_pipe[0]};
@@ -47,22 +47,20 @@ Process::Process(const std::string &path) {
 }
 
 Process::~Process() {
-  try {
-    close();
-  } catch (const ProcessError &exc) {
-  } catch (const std::exception &exc) {
-    std::cerr << exc.what() << std::endl;
+  if (isProcessRunning()) {
+    kill(fork_pid_, SIGINT);
+    waitpid(fork_pid_, nullptr, 0);
   }
 }
 
 size_t Process::read(void *data, size_t len) {
   if (!read_from_child_.isValid()) {
-    throw std::runtime_error("can't read message: channel was closed");
+    throw ProcessError("can't read message: channel was closed");
   }
   ssize_t bytes_read = ::read(*read_from_child_, data, len);
 
   if (bytes_read < 0) {
-    throw std::runtime_error(std::string(strerror(errno)));
+    throw ProcessError(std::string(strerror(errno)));
   }
 
   if (bytes_read == 0) {
@@ -89,7 +87,7 @@ void Process::readExact(void *data, size_t len) {
 
 size_t Process::write(const void *data, size_t len) {
   if (!write_to_child_.isValid()) {
-    throw std::runtime_error("can't write message: channel was closed");
+    throw ProcessError("can't write message: channel was closed");
   }
   ssize_t bytes_write = ::write(*write_to_child_, data, len);
 

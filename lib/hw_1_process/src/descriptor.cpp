@@ -18,22 +18,17 @@ Descriptor &Descriptor::operator=(Descriptor &&other) noexcept {
 
   if (this != &other) {
     if (isValid()) {
-      ::close(fd_);
+      close();
     }
-
-    fd_ = other.fd_;
-    other.fd_ = -1;
+    std::swap(fd_, other.fd_);
   }
 
   return *this;
 }
 
 Descriptor::~Descriptor() noexcept {
-  try {
-    closeThrow();
-  } catch (const DescriptorError &) {
-  } catch (const std::exception &exc) {
-    std::cerr << exc.what() << std::endl;
+  if (isValid()) {
+    ::close(fd_);
   }
 }
 
@@ -51,6 +46,6 @@ void Descriptor::close() {
   fd_ = -1;
 }
 
-bool Descriptor::isValid() const { return fd_ > 0; }
+bool Descriptor::isValid() const { return fd_ >= 0; }
 int Descriptor::operator*() const { return fd_; }
 } // namespace desc
