@@ -14,7 +14,7 @@ void StderrLogger::PrintLog(const Level &level, const std::string &msg) {
   if (time_str[strlen(time_str) - 1] == '\n')
     time_str[strlen(time_str) - 1] = '\0';
 
-  std::cout << time_str << " [" << LevelToString(level) << "] " << msg
+  std::cerr << time_str << " [" << LevelToString(level) << "] " << msg
             << std::endl;
 }
 
