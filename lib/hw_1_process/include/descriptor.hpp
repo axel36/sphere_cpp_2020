@@ -5,8 +5,7 @@
 namespace desc {
 
 class DescriptorError : public std::runtime_error {
-public:
-  explicit DescriptorError(const std::string &msg) : std::runtime_error(msg) {}
+  using std::runtime_error::runtime_error;
 };
 
 class Descriptor {
