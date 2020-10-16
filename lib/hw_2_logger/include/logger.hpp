@@ -28,6 +28,9 @@ public:
 private:
   Level level_ = Level::INFO;
   virtual void PrintLog(const Level& level, const std::string& msg){}
+
+protected:
+  virtual void PrintLogInternal(std::ostream& stream, const Level& level, const std::string& msg);
 };
 
 class StdoutLogger : public BaseLogger{
@@ -46,7 +49,7 @@ private:
 
 class FileLogger : public BaseLogger {
   public:
-  FileLogger(const std::string& filename);
+  explicit FileLogger(const std::string& filename);
   ~FileLogger();
 private:
   std::ofstream log_file_;

@@ -20,7 +20,6 @@ int main() {
   logger1->Warn("warn2");
   logger1->Error("error2");
 
-
   const auto logger3 = std::make_unique<log::StdoutLogger>();
   logger3->Debug("asd");
   logger3->Info("info");
