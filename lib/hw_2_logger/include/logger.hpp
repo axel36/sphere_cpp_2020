@@ -7,38 +7,35 @@ namespace log {
 
 enum class Level { DEBUG, INFO, WARN, ERROR };
 
-std::string LevelToString(const Level &level);
-
 class BaseLogger {
 public:
-  virtual void Log(const Level &level, const std::string &msg);
-  virtual void Debug(const std::string &msg);
-  virtual void Info(const std::string &msg);
-  virtual void Warn(const std::string &msg);
-  virtual void Error(const std::string &msg);
-  void SetLevel(const Level &level);
+  void Log(Level level, const std::string &msg);
+  void Debug(const std::string &msg);
+  void Info(const std::string &msg);
+  void Warn(const std::string &msg);
+  void Error(const std::string &msg);
+  void SetLevel(Level level);
   Level GetCurrentLevel();
-  virtual void Flush() {}
+  virtual void Flush();
+  virtual ~BaseLogger() = default;
 
 private:
   Level level_ = Level::INFO;
-  virtual void PrintLog(const Level &level, const std::string &msg) {}
+  virtual void PrintLog(Level level, const std::string &msg) = 0;
 
 protected:
-  virtual void PrintLogInternal(std::ostream &stream, const Level &level,
-                                const std::string &msg);
+  void PrintLogInternal(std::ostream &stream, Level level,
+                        const std::string &msg);
 };
 
 class StdoutLogger : public BaseLogger {
 private:
-  void Flush() override;
-  void PrintLog(const Level &level, const std::string &msg) override;
+  void PrintLog(Level level, const std::string &msg) override;
 };
 
 class StderrLogger : public BaseLogger {
 private:
-  void Flush() override;
-  void PrintLog(const Level &level, const std::string &msg) override;
+  void PrintLog(Level level, const std::string &msg) override;
 };
 
 class FileLogger : public BaseLogger {
@@ -49,7 +46,7 @@ public:
 private:
   std::ofstream log_file_;
   void Flush() override;
-  void PrintLog(const Level &level, const std::string &msg) override;
+  void PrintLog(Level level, const std::string &msg) override;
 };
 
 } // namespace log

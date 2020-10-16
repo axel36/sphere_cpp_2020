@@ -1,11 +1,14 @@
-#include "logger.hpp"
 #include <chrono>
 #include <cstring>
+#include <iostream>
 #include <stdexcept>
 
-namespace log {
+#include "logger.hpp"
 
-std::string LevelToString(const Level &level) {
+namespace log {
+namespace {
+
+std::string LevelToString(Level level) {
   switch (level) {
   case Level::DEBUG:
     return "DEBUG";
@@ -18,11 +21,12 @@ std::string LevelToString(const Level &level) {
   }
   throw std::runtime_error("Unknown log level");
 }
+} // namespace
 
-void BaseLogger::SetLevel(const Level &level) { level_ = level; }
+void BaseLogger::SetLevel(Level level) { level_ = level; }
 Level BaseLogger::GetCurrentLevel() { return level_; }
 
-void BaseLogger::Log(const Level &level, const std::string &msg) {
+void BaseLogger::Log(Level level, const std::string &msg) {
   if (GetCurrentLevel() <= level) {
     PrintLog(level, msg);
   }
@@ -32,7 +36,7 @@ void BaseLogger::Info(const std::string &msg) { Log(Level::INFO, msg); }
 void BaseLogger::Warn(const std::string &msg) { Log(Level::WARN, msg); }
 void BaseLogger::Error(const std::string &msg) { Log(Level::ERROR, msg); }
 
-void BaseLogger::PrintLogInternal(std::ostream &stream, const Level &level,
+void BaseLogger::PrintLogInternal(std::ostream &stream, Level level,
                                   const std::string &msg) {
   auto log_time =
       std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -43,6 +47,16 @@ void BaseLogger::PrintLogInternal(std::ostream &stream, const Level &level,
 
   stream << time_str << " [" << LevelToString(level) << "] " << msg
          << std::endl;
+}
+
+void BaseLogger::Flush() {}
+
+void StderrLogger::PrintLog(Level level, const std::string &msg) {
+  PrintLogInternal(std::cerr, level, msg);
+}
+
+void StdoutLogger::PrintLog(Level level, const std::string &msg) {
+  PrintLogInternal(std::cout, level, msg);
 }
 
 } // namespace log

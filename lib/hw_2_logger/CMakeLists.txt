@@ -3,8 +3,8 @@ project(hw_2_logger)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_library(hw_2_logger STATIC src/logger.cpp src/stdout_logger.cpp src/stderr_logger.cpp src/file_logger.cpp)
+add_library(hw_2_logger STATIC src/logger.cpp src/file_logger.cpp)
 target_include_directories(hw_2_logger PUBLIC include)
 
-add_executable(test_hw_2 tests/main_test.cpp src/logger.cpp src/stdout_logger.cpp src/stderr_logger.cpp src/file_logger.cpp)
-target_include_directories(test_hw_2 PRIVATE include)
+add_executable(test_hw_2 tests/main_test.cpp)
+target_link_libraries(test_hw_2 hw_2_logger)

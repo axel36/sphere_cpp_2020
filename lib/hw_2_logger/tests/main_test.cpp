@@ -1,6 +1,6 @@
-#include "logger.hpp"
-#include <iostream>
 #include <memory>
+
+#include "logger.hpp"
 
 int main() {
   const auto logger2 = std::make_unique<log::FileLogger>("test.txt");

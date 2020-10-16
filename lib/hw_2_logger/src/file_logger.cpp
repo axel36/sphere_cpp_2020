@@ -1,12 +1,10 @@
-#include <chrono>
-#include <cstring>
 #include <iostream>
 
 #include "logger.hpp"
 
 namespace log {
 
-void FileLogger::PrintLog(const Level &level, const std::string &msg) {
+void FileLogger::PrintLog(Level level, const std::string &msg) {
   if (!log_file_.is_open() || log_file_.bad()) {
     throw std::runtime_error("wrong file");
   }
@@ -19,7 +17,8 @@ FileLogger::FileLogger(const std::string &filename) {
     throw std::runtime_error("wrong file");
   }
 }
-FileLogger::~FileLogger() { log_file_.close(); }
-void FileLogger::Flush() {}
+FileLogger::~FileLogger() { log_file_.flush(); }
+
+void FileLogger::Flush() { log_file_.flush(); }
 
 } // namespace log
