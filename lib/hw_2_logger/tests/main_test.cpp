@@ -1,6 +1,7 @@
 #include <memory>
 
 #include "logger.hpp"
+#include "test_class.hpp"
 
 int main() {
   const auto logger2 = std::make_unique<log::FileLogger>("test.txt");
@@ -25,6 +26,25 @@ int main() {
   logger3->Info("info");
   logger3->Warn("warn");
   logger3->Error("error");
+
+  log::init_with_logger_t<log::StderrLogger>(log::Level::WARN);
+
+  log::DEBUG("global_Debug");
+  log::INFO("global_Info");
+  log::WARN("global_Warn");
+  log::ERROR("global_Error");
+
+  log::init_with_logger_t<log::StdoutLogger>(log::Level::DEBUG);
+
+  log::DEBUG("another_global_Debug");
+  log::INFO("another_global_Info");
+  log::WARN("another_global_Warn");
+  log::ERROR("another_global_Error");
+
+  {
+    test_class test{};
+    log::DEBUG("before class death");
+  }
 
   return 0;
 }
