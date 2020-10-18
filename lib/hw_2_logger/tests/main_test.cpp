@@ -27,14 +27,14 @@ int main() {
   logger3->Warn("warn");
   logger3->Error("error");
 
-  log::init_with_logger_t<log::StderrLogger>(log::Level::WARN);
+  log::init_with_stdout_logger(log::Level::WARN);
 
   log::DEBUG("global_Debug");
   log::INFO("global_Info");
   log::WARN("global_Warn");
   log::ERROR("global_Error");
 
-  log::init_with_logger_t<log::StdoutLogger>(log::Level::DEBUG);
+  log::init_with_stderr_logger(log::Level::DEBUG);
 
   log::DEBUG("another_global_Debug");
   log::INFO("another_global_Info");

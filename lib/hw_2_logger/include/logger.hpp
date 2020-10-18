@@ -62,11 +62,11 @@ private:
   LoggerSingleton(const LoggerSingleton &root) = delete;
   LoggerSingleton &operator=(const LoggerSingleton &) = delete;
 
-  std::unique_ptr<BaseLogger> global_logger_;
+  std::unique_ptr<BaseLogger> global_logger_ = std::make_unique<StdoutLogger>();
 };
 
-template <typename LoggerType> void init_with_logger_t(Level level);
-
+void init_with_stdout_logger(Level level);
+void init_with_stderr_logger(Level level);
 void init_with_file_logger(Level level, const std::string &file_path);
 
 void DEBUG(const std::string &msg);

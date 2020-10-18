@@ -5,7 +5,7 @@
 namespace log {
 
 void FileLogger::PrintLog(Level level, const std::string &msg) {
-  if (!log_file_.is_open() || log_file_.bad()) {
+  if (!log_file_) {
     throw std::runtime_error("wrong file");
   }
   PrintLogInternal(log_file_, level, msg);
