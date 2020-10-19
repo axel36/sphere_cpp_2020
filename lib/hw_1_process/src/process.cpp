@@ -1,7 +1,7 @@
 #include <cstring>
 #include <iostream>
 #include <wait.h>
-#include <zconf.h>
+#include <unistd.h>
 
 #include "process.hpp"
 
