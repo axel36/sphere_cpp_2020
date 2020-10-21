@@ -1,7 +1,7 @@
 #include <cstring>
 #include <iostream>
-#include <wait.h>
 #include <unistd.h>
+#include <wait.h>
 
 #include "process.hpp"
 

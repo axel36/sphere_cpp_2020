@@ -1,6 +1,5 @@
 #include "descriptor.hpp"
-#include <iostream>
-#include <zconf.h>
+#include <unistd.h>
 
 namespace desc {
 
