@@ -6,6 +6,10 @@
 
 namespace log {
 
+class LoggerError : public std::runtime_error {
+  using std::runtime_error::runtime_error;
+};
+
 enum class Level { DEBUG, INFO, WARN, ERROR };
 
 class BaseLogger {
@@ -54,7 +58,7 @@ class LoggerSingleton {
 public:
   static LoggerSingleton &GetInstance();
 
-  void SetGlobalLogger(std::unique_ptr<BaseLogger> &logger);
+  void SetGlobalLogger(std::unique_ptr<BaseLogger> &&logger);
   BaseLogger &GetGlobalLogger();
 
 private:

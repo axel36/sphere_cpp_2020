@@ -1,3 +1,4 @@
+#include <cassert>
 #include <memory>
 
 #include "logger.hpp"
@@ -44,6 +45,15 @@ int main() {
   {
     test_class test{};
     log::DEBUG("before class death");
+  }
+
+  try {
+    auto &logger = log::LoggerSingleton::GetInstance();
+    logger.SetGlobalLogger({});
+    assert(false);
+  } catch (const log::LoggerError &exc) {
+    std::string expected_what = "try to init logger with nullptr";
+    assert(exc.what() == expected_what);
   }
 
   return 0;

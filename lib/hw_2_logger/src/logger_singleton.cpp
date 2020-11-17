@@ -6,7 +6,10 @@ namespace log {
 
 BaseLogger &LoggerSingleton::GetGlobalLogger() { return *global_logger_; }
 
-void LoggerSingleton::SetGlobalLogger(std::unique_ptr<BaseLogger> &logger) {
+void LoggerSingleton::SetGlobalLogger(std::unique_ptr<BaseLogger> &&logger) {
+  if (!logger) {
+    throw LoggerError("try to init logger with nullptr");
+  }
   global_logger_ = std::move(logger);
 }
 
@@ -19,21 +22,21 @@ void init_with_stdout_logger(Level level) {
   LoggerSingleton &singleton = LoggerSingleton::GetInstance();
   std::unique_ptr<BaseLogger> logger = std::make_unique<StdoutLogger>();
   logger->SetLevel(level);
-  singleton.SetGlobalLogger(logger);
+  singleton.SetGlobalLogger(std::move(logger));
 }
 
 void init_with_stderr_logger(Level level) {
   LoggerSingleton &singleton = LoggerSingleton::GetInstance();
   std::unique_ptr<BaseLogger> logger = std::make_unique<StderrLogger>();
   logger->SetLevel(level);
-  singleton.SetGlobalLogger(logger);
+  singleton.SetGlobalLogger(std::move(logger));
 }
 
 void init_with_file_logger(Level level, const std::string &file_path) {
   LoggerSingleton &singleton = LoggerSingleton::GetInstance();
   std::unique_ptr<BaseLogger> logger = std::make_unique<FileLogger>(file_path);
   logger->SetLevel(level);
-  singleton.SetGlobalLogger(logger);
+  singleton.SetGlobalLogger(std::move(logger));
 }
 
 void DEBUG(const std::string &msg) {
