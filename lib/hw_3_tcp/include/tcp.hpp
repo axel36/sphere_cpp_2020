@@ -1,3 +1,5 @@
+#pragma once
+
 #include "descriptor.hpp"
 #include <iostream>
 #include <optional>
