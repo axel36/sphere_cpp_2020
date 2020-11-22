@@ -7,22 +7,32 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <utility>
 
 namespace tcp {
 
 Connection::Connection(Connection &&other) noexcept
-    : socket_(std::move(other.socket_)), timeout_(other.timeout_) {
-  other.timeout_.reset();
+    : socket_(std::move(other.socket_)) {
+
+  std::swap(addr_, other.addr_);
+  std::swap(port_, other.port_);
+  std::swap(timeout_, other.timeout_);
 }
 
 Connection &Connection::operator=(Connection &&other) noexcept {
   if (this != &other) {
     socket_ = std::move(other.socket_);
-    timeout_ = other.timeout_;
-    other.timeout_.reset();
+
+    std::swap(addr_, other.addr_);
+    std::swap(port_, other.port_);
+    std::swap(timeout_, other.timeout_);
   }
   return *this;
 }
+
+Connection::Connection(desc::Descriptor &&client_socket, std::string addr,
+                       uint16_t port)
+    : socket_(std::move(client_socket)), addr_(std::move(addr)), port_(port) {}
 
 void Connection::Close() {
   log::INFO("close connection on fd = " + std::to_string(*socket_));
@@ -139,9 +149,6 @@ void Connection::SetTimeoutInternal(const timeval &timeout) {
   }
 }
 
-Connection::Connection(desc::Descriptor &&client_socket)
-    : socket_(std::move(client_socket)) {}
-
 bool Connection::IsOpen() const { return socket_.isValid(); }
 
 void Connection::LogErrorAndThrow() {
@@ -150,6 +157,12 @@ void Connection::LogErrorAndThrow() {
   log::ERROR(std::strerror(errno));
   throw ConnectionError(std::strerror(errno));
 }
+
+int Connection::GetSocket() const { return *socket_; }
+
+std::string Connection::GetAddr() const { return addr_; }
+
+std::string Connection::GetPort() const { return std::to_string(port_); }
 
 ClientConnection::ClientConnection(const std::string &addr, int port) {
   Connect(addr, port);

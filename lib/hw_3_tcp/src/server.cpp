@@ -100,7 +100,7 @@ Connection Server::Accept() {
   log::INFO("get client from: addr= " + client_addr +
             ", p= " + std::to_string(client_sock_addr.sin_port));
 
-  return Connection{std::move(client_fd)};
+  return {std::move(client_fd), client_addr, client_sock_addr.sin_port};
 }
 
 void Server::SetTimeout(size_t sec, size_t ms) {
