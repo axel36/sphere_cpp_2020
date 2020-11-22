@@ -7,7 +7,9 @@
 
 namespace tcp {
 
-Server::Server(const std::string &addr, int port) { Open(addr, port); }
+Server::Server(const std::string &addr, int port, size_t max_connections) {
+  Open(addr, port, max_connections);
+}
 Server::Server(Server &&other) noexcept
     : server_socket_(std::move(other.server_socket_)),
       timeout_(other.timeout_) {
@@ -23,7 +25,7 @@ Server &Server::operator=(Server &&other) noexcept {
   return *this;
 }
 
-void Server::Open(const std::string &addr, int port) {
+void Server::Open(const std::string &addr, int port, size_t max_connections) {
 
   if (server_socket_.isValid()) {
     log::DEBUG("try to create new server, listen on p=" + std::to_string(port) +
@@ -63,7 +65,7 @@ void Server::Open(const std::string &addr, int port) {
     LogErrorAndThrow();
   }
 
-  result = ::listen(*server_socket_, 100);
+  result = ::listen(*server_socket_, max_connections);
   if (result != 0) {
     LogErrorAndThrow();
   }

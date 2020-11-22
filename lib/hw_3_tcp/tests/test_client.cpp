@@ -12,5 +12,4 @@ int main() {
     read = con.Read(buf.data(), buf.size());
     std::cout << buf.substr(0, read) << std::flush;
   }
-
 }

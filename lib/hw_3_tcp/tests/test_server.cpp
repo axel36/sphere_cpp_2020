@@ -4,7 +4,7 @@
 int main() {
   log::init_with_stderr_logger(log::Level::DEBUG);
 
-  tcp::Server server{"127.0.0.1", 8080};
+  tcp::Server server{"127.0.0.1", 8080, 100};
   server.SetTimeout(10, 0);
   tcp::Connection con = server.Accept();
   con.SetTimeout(5, 0);

@@ -52,7 +52,7 @@ public:
 class Server {
 public:
   Server() = default;
-  Server(const std::string &addr, int port);
+  Server(const std::string &addr, int port, size_t max_connections);
 
   Server(Server &other) = delete;
   Server(Server &&other) noexcept;
@@ -60,7 +60,7 @@ public:
   Server &operator=(Server &other) = delete;
   Server &operator=(Server &&other) noexcept;
 
-  void Open(const std::string &addr, int port);
+  void Open(const std::string &addr, int port, size_t max_connections);
   void Close();
   Connection Accept();
 
