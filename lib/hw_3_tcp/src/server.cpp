@@ -1,4 +1,4 @@
-#include "tcp.hpp"
+#include "tcp_server.hpp"
 #include <arpa/inet.h>
 #include <cassert>
 #include <cstring>
@@ -78,7 +78,7 @@ void Server::Close() {
 }
 
 void Server::LogErrorAndThrow() {
-  server_socket_ = desc::Descriptor{};
+  server_socket_.close();
   log::ERROR(std::strerror(errno));
   throw ConnectionError(std::strerror(errno));
 }
@@ -93,7 +93,8 @@ Connection Server::Accept() {
     client_fd = desc::Descriptor{::accept(
         *server_socket_, reinterpret_cast<sockaddr *>(&client_sock_addr), &s)};
   } catch (const desc::DescriptorError &err) {
-    LogErrorAndThrow();
+    log::WARN("server_accept error: " + std::string(std::strerror(errno)));
+    throw ServerAcceptError("server_accept error: " + std::string(std::strerror(errno)));
   }
 
   std::string client_addr{::inet_ntoa(client_sock_addr.sin_addr)};

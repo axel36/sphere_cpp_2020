@@ -1,12 +1,17 @@
 #include "logger.hpp"
-#include "tcp.hpp"
+#include "tcp_server.hpp"
 
 int main() {
   log::init_with_stderr_logger(log::Level::DEBUG);
 
   tcp::Server server{"127.0.0.1", 8080, 100};
   server.SetTimeout(10, 0);
-  tcp::Connection con = server.Accept();
+  tcp::Connection con;
+  try {
+    con = server.Accept();
+  } catch (const tcp::ServerAcceptError& e){
+    std::cout << e.what() << std::endl;
+  }
   con.SetTimeout(5, 0);
 
   try {

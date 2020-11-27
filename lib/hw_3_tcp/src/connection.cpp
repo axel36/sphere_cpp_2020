@@ -53,7 +53,7 @@ size_t Connection::Read(char *data, size_t len) {
 
   if (bytes_read == 0) {
     log::INFO("other side close connection on fd= " + std::to_string(*socket_));
-    socket_ = desc::Descriptor{};
+    socket_.close();
   }
 
   log::DEBUG("from socket " + std::to_string(*socket_) +
@@ -91,7 +91,7 @@ size_t Connection::Write(const char *data, size_t len) {
   }
   if (bytes_wrote == 0) {
     log::INFO("other side close connection on fd= " + std::to_string(*socket_));
-    socket_ = desc::Descriptor{};
+    socket_.close();
   }
   log::DEBUG("to socket " + std::to_string(*socket_) +
              ", wrote bytes = " + std::to_string(bytes_wrote));
@@ -153,7 +153,7 @@ bool Connection::IsOpen() const { return socket_.isValid(); }
 
 void Connection::LogErrorAndThrow() {
 
-  socket_ = desc::Descriptor{};
+  socket_.close();
   log::ERROR(std::strerror(errno));
   throw ConnectionError(std::strerror(errno));
 }
@@ -164,9 +164,12 @@ std::string Connection::GetAddr() const { return addr_; }
 
 std::string Connection::GetPort() const { return std::to_string(port_); }
 
-ClientConnection::ClientConnection(const std::string &addr, int port) {
+ClientConnection::ClientConnection(const std::string &addr, int port){
+  addr_ = addr;
+  port_ = port;
   Connect(addr, port);
 }
+
 void ClientConnection::Connect(const std::string &addr, int port) {
 
   if (socket_.isValid()) {

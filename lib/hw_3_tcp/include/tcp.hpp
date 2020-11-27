@@ -14,10 +14,6 @@ class ConnectionError : public TcpError {
   using TcpError::TcpError;
 };
 
-class ServerError : public TcpError {
-  using TcpError::TcpError;
-};
-
 class Connection {
 public:
   Connection() = default;
@@ -61,31 +57,6 @@ class ClientConnection : public Connection {
 public:
   ClientConnection(const std::string &addr, int port);
   void Connect(const std::string &addr, int port);
-};
-
-class Server {
-public:
-  Server() = default;
-  Server(const std::string &addr, int port, size_t max_connections);
-
-  Server(Server &other) = delete;
-  Server(Server &&other) noexcept;
-
-  Server &operator=(Server &other) = delete;
-  Server &operator=(Server &&other) noexcept;
-
-  void Open(const std::string &addr, int port, size_t max_connections);
-  void Close();
-  Connection Accept();
-
-  void SetTimeout(size_t sec, size_t ms);
-
-private:
-  desc::Descriptor server_socket_;
-  std::optional<timeval> timeout_;
-
-  void LogErrorAndThrow();
-  void SetTimeoutInternal(const timeval &timeout);
 };
 
 } // namespace tcp
