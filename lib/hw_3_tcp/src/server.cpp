@@ -94,7 +94,8 @@ Connection Server::Accept() {
         *server_socket_, reinterpret_cast<sockaddr *>(&client_sock_addr), &s)};
   } catch (const desc::DescriptorError &err) {
     log::WARN("server_accept error: " + std::string(std::strerror(errno)));
-    throw ServerAcceptError("server_accept error: " + std::string(std::strerror(errno)));
+    throw ServerAcceptError("server_accept error: " +
+                            std::string(std::strerror(errno)));
   }
 
   std::string client_addr{::inet_ntoa(client_sock_addr.sin_addr)};

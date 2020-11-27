@@ -164,7 +164,7 @@ std::string Connection::GetAddr() const { return addr_; }
 
 std::string Connection::GetPort() const { return std::to_string(port_); }
 
-ClientConnection::ClientConnection(const std::string &addr, int port){
+ClientConnection::ClientConnection(const std::string &addr, int port) {
   addr_ = addr;
   port_ = port;
   Connect(addr, port);

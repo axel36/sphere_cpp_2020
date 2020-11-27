@@ -40,4 +40,4 @@ private:
   void SetTimeoutInternal(const timeval &timeout);
 };
 
-}
+} // namespace tcp

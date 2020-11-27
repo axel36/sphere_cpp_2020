@@ -9,7 +9,7 @@ int main() {
   tcp::Connection con;
   try {
     con = server.Accept();
-  } catch (const tcp::ServerAcceptError& e){
+  } catch (const tcp::ServerAcceptError &e) {
     std::cout << e.what() << std::endl;
   }
   con.SetTimeout(5, 0);
