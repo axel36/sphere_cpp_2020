@@ -23,10 +23,10 @@ public:
   Connection() = default;
   Connection(desc::Descriptor &&client_socket, std::string addr, uint16_t port);
 
-  Connection(Connection &other) = delete;
+  Connection(const Connection &other) = delete;
   Connection(Connection &&other) noexcept;
 
-  Connection &operator=(Connection &other) = delete;
+  Connection &operator=(const Connection &other) = delete;
   Connection &operator=(Connection &&other) noexcept;
 
   virtual ~Connection() = default;
@@ -46,7 +46,10 @@ public:
   [[nodiscard]] int GetSocket() const;
   [[nodiscard]] std::string GetAddr() const;
   [[nodiscard]] std::string GetPort() const;
-
+  [[nodiscard]] std::string GetInfo() const;
+  void set(int f){
+    port_= f;
+  }
 protected:
   desc::Descriptor socket_;
   std::optional<timeval> timeout_;

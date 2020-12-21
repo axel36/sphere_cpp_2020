@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <utility>
+#include <sstream>
 
 namespace tcp {
 
@@ -163,6 +164,12 @@ int Connection::GetSocket() const { return *socket_; }
 std::string Connection::GetAddr() const { return addr_; }
 
 std::string Connection::GetPort() const { return std::to_string(port_); }
+
+std::string Connection::GetInfo() const {
+  std::stringstream ss;
+  ss << "fd: " << *socket_ << ", ip: " << addr_ << ", p: " << port_;
+  return ss.str();
+}
 
 ClientConnection::ClientConnection(const std::string &addr, int port) {
   Connect(addr, port);
